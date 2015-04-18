@@ -4,6 +4,10 @@ class Responder < ActiveRecord::Base
 
   enum type: %w(fire police medical)
 
+  scope :available, -> { where(emergency_code: nil) }
+  scope :on_duty, -> { where(on_duty: true) }
+  scope :ready, -> { available.on_duty }
+
   validates :capacity, presence: true, inclusion: { in: 1..5 }
   validates :name, uniqueness: true, presence: true
   validates :type, presence: true

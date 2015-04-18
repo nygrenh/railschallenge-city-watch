@@ -19,7 +19,6 @@ class EmergenciesController < ApplicationController
     if emergency.save
       render json: emergency, status: :created
     else
-      byebug
       render json: emergency.errors, status: :unprocessable_entity
     end
   end
