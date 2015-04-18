@@ -1,36 +1,49 @@
 class EmergenciesController < ApplicationController
+  before_action :set_emergency, only: [:show, :update]
 
   def index
     render json: Emergency.all
   end
 
   def show
-    emergency = Emergency.find_by(code: params[:code])
-    if emergency
-      render json: emergency
+    if @emergency
+      render json: @emergency
     else
       head :not_found
     end
   end
 
   def create
-    emergency = Emergency.new(emergency_params([:resolved_at]))
+    allow_attributes! :code
+    emergency = Emergency.new(emergency_params)
     if emergency.save
       render json: emergency, status: :created
     else
-      render json: { message: emergency.errors }, status: :unprocessable_entity
+      byebug
+      render json: emergency.errors, status: :unprocessable_entity
     end
   end
 
   def update
-    emergency = Emergency.find_by(code: params[:code])
-    emergency.update(emergency_params([:code]))
-    render json: emergency
+    allow_attributes! :resolved_at
+    if @emergency.update(emergency_params)
+      render json: @emergency
+    else
+      render json: responder.errors, status: :unprocessable_entity
+    end
   end
 
   private
 
-  def emergency_params(without = [])
-    params.require(:emergency).permit([:code, :fire_severity, :police_severity, :medical_severity, :resolved_at] - without)
+  def set_emergency
+    @emergency = Emergency.find_by(code: params[:code])
+  end
+
+  def emergency_params
+    params.require(:emergency).permit(allowed_attributes)
+  end
+
+  def common_allowed_attributes
+    [:fire_severity, :police_severity, :medical_severity]
   end
 end

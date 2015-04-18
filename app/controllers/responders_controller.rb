@@ -1,14 +1,19 @@
 class RespondersController < ApplicationController
   def index
-    render json: Responder.all
+    if params[:show] == 'capacity'
+      render json: ResponderCapacity.new
+    else
+      render json: Responder.all
+    end
   end
 
   def create
-    responder = Responder.new(responder_params(:on_duty))
+    allow_attributes! :name, :capacity, :type
+    responder = Responder.new(responder_params)
     if responder.save
       render json: responder, status: :created
     else
-      render json: { message: responder.errors }, status: :unprocessable_entity
+      render json: responder.errors, status: :unprocessable_entity
     end
   end
 
@@ -22,17 +27,18 @@ class RespondersController < ApplicationController
   end
 
   def update
+    allow_attributes! :on_duty
     responder = Responder.find_by(name: params[:name])
-    if responder.update(responder_params(:name, :capacity, :type))
+    if responder.update(responder_params)
       render json: responder
     else
-      head :unprocessable_entity
+      render json: responder.errors, status: :unprocessable_entity
     end
   end
 
   private
 
-  def responder_params(*without)
-    params.require(:responder).permit([:type, :name, :capacity, :on_duty] - without)
+  def responder_params
+    params.require(:responder).permit(allowed_attributes)
   end
 end

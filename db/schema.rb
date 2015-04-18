@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(version: 20150418105843) do
 
   create_table "responders", force: :cascade do |t|
     t.string   "emergency_code"
-    t.string   "type"
+    t.integer  "type"
     t.string   "name"
     t.integer  "capacity"
     t.boolean  "on_duty",        default: false
