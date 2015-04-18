@@ -9,5 +9,7 @@ Bundler.require(*Rails.groups)
 module CityWatch
   class Application < Rails::Application
     config.active_record.raise_in_transactional_callbacks = true
+    # This allows us to detect unpermitted parameters
+    config.action_controller.action_on_unpermitted_parameters = :raise
   end
 end
