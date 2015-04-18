@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   get 'emergencies', to: 'emergencies#index'
   patch 'emergencies', to: 'emergencies#index'
   get 'emergencies/:code', to: 'emergencies#show'
+  patch 'emergencies/:code', to: 'emergencies#update'
 end

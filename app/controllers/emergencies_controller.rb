@@ -14,7 +14,7 @@ class EmergenciesController < ApplicationController
   end
 
   def create
-    emergency = Emergency.new(emergency_params)
+    emergency = Emergency.new(emergency_params([:resolved_at]))
     if emergency.save
       render json: emergency, status: :created
     else
@@ -22,9 +22,15 @@ class EmergenciesController < ApplicationController
     end
   end
 
+  def update
+    emergency = Emergency.find_by(code: params[:code])
+    emergency.update(emergency_params([:code]))
+    render json: emergency
+  end
+
   private
 
-  def emergency_params
-    params.require(:emergency).permit(:code, :fire_severity, :police_severity, :medical_severity)
+  def emergency_params(without = [])
+    params.require(:emergency).permit([:code, :fire_severity, :police_severity, :medical_severity, :resolved_at] - without)
   end
 end
