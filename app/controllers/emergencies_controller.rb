@@ -4,6 +4,15 @@ class EmergenciesController < ApplicationController
     render json: Emergency.all
   end
 
+  def show
+    emergency = Emergency.find_by(code: params[:code])
+    if emergency
+      render json: emergency
+    else
+      head :not_found
+    end
+  end
+
   def create
     emergency = Emergency.new(emergency_params)
     if emergency.save
