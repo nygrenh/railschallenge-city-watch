@@ -21,6 +21,7 @@ class ResponderDispatcher
     end
 
     def dispatch
+      return false if @responders.empty?
       need = emergency_severity
       while need > 0
         best = best_candidate(need)
