@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get 'responders/new', to: 'errors#error_404'
+  get 'emergencies/new', to: 'errors#error_404'
+
   post 'responders', to: 'responders#create'
   patch 'responders/:name', to: 'responders#update'
   get 'responders', to: 'responders#index'
@@ -9,4 +12,6 @@ Rails.application.routes.draw do
   patch 'emergencies', to: 'emergencies#index'
   get 'emergencies/:code', to: 'emergencies#show'
   patch 'emergencies/:code', to: 'emergencies#update'
+
+  match '*a', to: 'errors#error_404', via: :all
 end
