@@ -6,6 +6,7 @@ class CreateEmergencies < ActiveRecord::Migration
       t.integer :police_severity
       t.integer :medical_severity
       t.datetime :resolved_at
+      t.boolean :full_response
 
       t.timestamps null: false
     end
