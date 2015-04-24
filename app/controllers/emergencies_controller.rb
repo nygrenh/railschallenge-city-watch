@@ -14,8 +14,7 @@ class EmergenciesController < ApplicationController
   end
 
   def create
-    allow_attributes! :code
-    emergency = Emergency.new(emergency_params)
+    emergency = Emergency.new(create_params)
     if emergency.save
       render json: emergency, status: :created
     else
@@ -24,8 +23,7 @@ class EmergenciesController < ApplicationController
   end
 
   def update
-    allow_attributes! :resolved_at
-    if @emergency.update(emergency_params)
+    if @emergency.update(update_params)
       render json: @emergency
     else
       render json: responder.errors, status: :unprocessable_entity
@@ -38,11 +36,11 @@ class EmergenciesController < ApplicationController
     @emergency = Emergency.find_by(code: params[:code])
   end
 
-  def emergency_params
-    params.require(:emergency).permit(allowed_attributes)
+  def update_params
+    params.require(:emergency).permit(:fire_severity, :police_severity, :medical_severity, :resolved_at)
   end
 
-  def common_allowed_attributes
-    [:fire_severity, :police_severity, :medical_severity]
+  def create_params
+    params.require(:emergency).permit(:fire_severity, :police_severity, :medical_severity, :code)
   end
 end
