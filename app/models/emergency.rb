@@ -16,7 +16,7 @@ class Emergency < ActiveRecord::Base
   protected
 
   def dispatch_responders
-    self.full_response = ResponderDispatcher.new(self).dispatch
+    ResponderDispatcher.new(self).dispatch
     save
   end
 

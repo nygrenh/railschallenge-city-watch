@@ -2,9 +2,7 @@ class EmergenciesController < ApplicationController
   before_action :set_emergency, only: [:show, :update]
 
   def index
-    fully_responded = Emergency.fully_responded.count
-    emergency_count = Emergency.count
-    render json: Emergency.all, meta: [fully_responded, emergency_count], meta_key: 'full_responses'
+    render json: StatisticalEmergency.new(Emergency.all)
   end
 
   def show

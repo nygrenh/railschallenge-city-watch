@@ -1,42 +1,45 @@
 class ResponderDispatcher
-  RESPONDER_TYPES = [Responder.fire, Responder.police, Responder.medical]
+  RESPONDER_TYPES = [:fire, :police, :medical]
 
   def initialize(emergency)
     @emergency = emergency
   end
 
   def dispatch
-    full_response = true
-    RESPONDER_TYPES.each do |responder|
-      result = Dispatcher.new(responder, @emergency).dispatch
-      full_response = false unless result
+    @emergency.full_response = true
+    RESPONDER_TYPES.map do |responder|
+      skip, success = Dispatcher.new(responder, @emergency).dispatch
+      @emergency.full_response = false if !skip && !success
     end
-    full_response
   end
 
   class Dispatcher
-    def initialize(responders, emergency)
-      @responders = responders.ready
+    def initialize(responder_type, emergency)
+      @type = responder_type
+      @responders = Responder.send(responder_type).ready
       @emergency = emergency
     end
 
     def dispatch
+      return false, severity.zero? if responders.empty?
+      return true, true if severity.zero?
+
       responders.each do |responder|
         assign(responder)
       end
-      full_response? responders
+      [false, full_response?(responders)]
     end
+
+    private
 
     def responders
       @selected_responders ||= begin
-        need = emergency_severity
-        return [] if need.zero?
         best_team = @responders
         (1..@responders.length).each do |n|
           @responders.combination(n) do |responders|
             team_capacity = total_capacity(responders)
-            best_team = responders if need < team_capacity && team_capacity < total_capacity(best_team)
-            return responders if team_capacity == need
+            best_team = responders if severity < team_capacity && team_capacity < total_capacity(best_team)
+            return responders if team_capacity == severity
           end
         end
         best_team
@@ -44,13 +47,11 @@ class ResponderDispatcher
     end
 
     def full_response?(responders)
-      emergency_severity <= total_capacity(responders)
+      severity <= total_capacity(responders)
     end
 
-    def emergency_severity
-      return 0 if @responders.empty?
-      type = @responders.first.type
-      @emergency.send("#{type}_severity")
+    def severity
+      @emergency.send("#{@type}_severity")
     end
 
     def assign(responder)
