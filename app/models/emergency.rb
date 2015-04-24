@@ -11,11 +11,16 @@ class Emergency < ActiveRecord::Base
   validates :fire_severity, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   after_create :dispatch_responders
+  after_save :free_responders
 
   protected
 
   def dispatch_responders
     self.full_response = ResponderDispatcher.new(self).dispatch
     save
+  end
+
+  def free_responders
+    responders.each(&:free_from_assignment) if resolved_at
   end
 end

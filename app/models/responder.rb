@@ -21,6 +21,12 @@ class Responder < ActiveRecord::Base
     super(value.downcase)
   end
 
+  def free_from_assignment
+    self.emergency_code = nil
+    self.emergency = nil
+    save
+  end
+
   protected
 
   def attach_emergency

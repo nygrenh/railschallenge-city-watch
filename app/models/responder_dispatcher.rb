@@ -16,60 +16,53 @@ class ResponderDispatcher
 
   class Dispatcher
     def initialize(responders, emergency)
-      @responders = responders
+      @responders = responders.ready
       @emergency = emergency
     end
 
     def dispatch
-      return false if @responders.empty?
-      need = emergency_severity
-      return true if need == 0
-      while need > 0
-        best = best_candidate(need)
-        return false unless best
-        assign(best)
-        need -= best.capacity
+      responders.each do |responder|
+        assign(responder)
       end
-      true
+      full_response? responders
+    end
+
+    def responders
+      @selected_responders ||= begin
+        need = emergency_severity
+        return [] if need.zero?
+        best_team = @responders
+        (1..@responders.length).each do |n|
+          @responders.combination(n) do |responders|
+            team_capacity = total_capacity(responders)
+            best_team = responders if need < team_capacity && team_capacity < total_capacity(best_team)
+            return responders if team_capacity == need
+          end
+        end
+        best_team
+      end
+    end
+
+    def full_response?(responders)
+      emergency_severity <= total_capacity(responders)
     end
 
     def emergency_severity
+      return 0 if @responders.empty?
       type = @responders.first.type
       @emergency.send("#{type}_severity")
     end
 
     def assign(responder)
-      return unless responder
       responder.emergency_code = @emergency.code
       responder.save
-      remove_from_list(responder)
     end
 
-    def remove_from_list(responder)
-      grouped_emergency[responder.capacity].delete(responder)
-      grouped_emergency.delete(responder.capacity) if grouped_emergency[responder.capacity].empty?
-    end
-
-    def best_candidate(need)
-      return emergency_candidate(need) if grouped_emergency[need]
-      need = next_smaller_capacity(need) || next_bigger_capacity(need)
-      emergency_candidate(need)
-    end
-
-    def next_smaller_capacity(need)
-      grouped_emergency.keys.find_all { |c| c < need }.max
-    end
-
-    def next_bigger_capacity(need)
-      grouped_emergency.keys.find_all { |c| c > need }.min
-    end
-
-    def emergency_candidate(need)
-      grouped_emergency[need].first if grouped_emergency[need]
-    end
-
-    def grouped_emergency
-      @grouped_emergency ||= @responders.ready.group_by(&:capacity)
+    # We have to do this here instead of of the model because
+    # ActiveRecord::Relation#combination yields arrays to the
+    # block
+    def total_capacity(responders)
+      responders.inject(0) { |a, e| a + e.capacity }
     end
   end
 end
