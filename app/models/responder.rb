@@ -24,7 +24,7 @@ class Responder < ActiveRecord::Base
   def free_from_assignment
     self.emergency_code = nil
     self.emergency = nil
-    save
+    save!
   end
 
   protected

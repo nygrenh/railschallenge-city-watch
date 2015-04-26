@@ -56,7 +56,7 @@ class ResponderDispatcher
 
     def assign(responder)
       responder.emergency_code = @emergency.code
-      responder.save
+      responder.save!
     end
 
     # We have to do this here instead of of the model because

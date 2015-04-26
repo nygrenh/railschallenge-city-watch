@@ -17,7 +17,7 @@ class Emergency < ActiveRecord::Base
 
   def dispatch_responders
     ResponderDispatcher.new(self).dispatch
-    save
+    save!
   end
 
   def free_responders
