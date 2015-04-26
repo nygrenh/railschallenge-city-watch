@@ -11,7 +11,11 @@ class Emergency < ActiveRecord::Base
   validates :fire_severity, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   after_create :dispatch_responders
-  after_save :free_responders
+  before_update :free_responders
+
+  def resolved?
+    resolved_at != nil
+  end
 
   protected
 
@@ -21,6 +25,6 @@ class Emergency < ActiveRecord::Base
   end
 
   def free_responders
-    responders.each(&:free_from_assignment) if resolved_at
+    self.responders = [] if resolved?
   end
 end
