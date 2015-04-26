@@ -2,11 +2,15 @@ class Responder < ActiveRecord::Base
   # We want to use field 'type' without single-table inheritance
   self.inheritance_column = nil
 
+  # We want to see this on API reponses but it's useless for the
+  # application so we don't need to save it in the database
+  attr_accessor :emergency_code
+
   belongs_to :emergency
 
   enum type: %w(fire police medical)
 
-  scope :available, -> { where(emergency_code: nil) }
+  scope :available, -> { where(emergency_id: nil) }
   scope :on_duty, -> { where(on_duty: true) }
   scope :ready, -> { available.on_duty }
 
@@ -22,7 +26,6 @@ class Responder < ActiveRecord::Base
   end
 
   def free_from_assignment
-    self.emergency_code = nil
     self.emergency = nil
     save!
   end
