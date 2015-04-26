@@ -1,19 +1,22 @@
 class ResponderDispatcher
-  RESPONDER_TYPES = [:fire, :police, :medical]
-
   def initialize(emergency)
     @emergency = emergency
   end
 
   def dispatch
     @emergency.full_response = true
-    RESPONDER_TYPES.map do |responder|
-      skip, success = Dispatcher.new(responder, @emergency).dispatch
+    responder_types.each do |type|
+      skip, success = DispatchOperation.new(type, @emergency).dispatch
       @emergency.full_response = false if !skip && !success
     end
   end
 
-  class Dispatcher
+  def responder_types
+    Responder.types.keys
+  end
+
+  # Encapsulates the dispatching logic for each responder type
+  class DispatchOperation
     def initialize(responder_type, emergency)
       @type = responder_type
       @responders = Responder.send(responder_type).ready
