@@ -21,7 +21,7 @@ class RespondersController < ApplicationController
     if responder
       render json: responder
     else
-      head :not_found
+      error_404
     end
   end
 

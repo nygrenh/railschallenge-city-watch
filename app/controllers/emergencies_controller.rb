@@ -9,7 +9,7 @@ class EmergenciesController < ApplicationController
     if @emergency
       render json: @emergency
     else
-      head :not_found
+      error_404
     end
   end
 
