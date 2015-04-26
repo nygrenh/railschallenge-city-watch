@@ -25,6 +25,8 @@ class Emergency < ActiveRecord::Base
   end
 
   def free_responders
-    self.responders = [] if resolved?
+    return if !resolved? || responders.empty?
+    self.responders = []
+    save!
   end
 end
